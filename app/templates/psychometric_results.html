@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block body_class %}psycho-wizard-bg{% endblock %}
+
+{% block title %}Psychometric Results — Career Accelerator{% endblock %}
+{% block meta_description %}View your AI-generated psychometric assessment results and recommended career paths.{%
+endblock %}
+
+{% block content %}
+<section class="tool-section" style="padding-top: 40px;">
+    <div class="container">
+
+        <div class="tool-header" style="color: #1a1a1a; text-align: center;">
+            <div class="tool-icon">🎯</div>
+            <h1>YOUR CAREER PROFILE</h1>
+            <p style="color: #4a5568;">Your assessment is complete!<br>Based on your interests, personality, aptitude,
+                skills and values, here's what we discovered.</p>
+        </div>
+
+        <!-- Section 1: Trait Breakdown -->
+        <div class="profile-card">
+            <h2 style="font-size: 1.5rem; margin-bottom: 20px; text-align: center;">Your Trait Profile</h2>
+            <div class="trait-grid">
+                {% for trait, score in result.trait_scores.items() %}
+                {% set pct = ((score / 15) * 100)|round|int %}
+                <div class="trait-card">
+                    <div class="trait-header">
+                        <span style="text-transform: capitalize;">{{ trait }}</span>
+                        <span style="color: #007bff;">{{ pct }}%</span>
+                    </div>
+                    <div class="trait-bar-bg">
+                        <div class="trait-bar-fill-gradient" style="width: {{ pct }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Section 2: AI Summary -->
+        <div class="profile-card">
+            <h2 style="font-size: 1.5rem; margin-bottom: 10px; text-align: center;">✨ AI Profile Summary</h2>
+            <div class="profile-summary-box">
+                {{ result.ai_summary|replace('\n', '<br>')|safe }}
+            </div>
+        </div>
+
+        <!-- Section 3: Recommended Careers -->
+        {% if recommended_careers %}
+        <div class="profile-card" style="background: #1a202c; color: white;">
+            <h2 class="text-center mb-4" style="color: white; font-size: 1.5rem;">Top Career Matches</h2>
+            <div class="careers-cards-row"
+                style="display: flex; flex-direction: column; gap: 15px; max-width: 600px; margin: 0 auto;">
+                {% for career in recommended_careers %}
+                <div class="rec-career-card"
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #2d3748; border-radius: 8px;">
+                    <h3 style="margin: 0; font-size: 1.2rem; color: #fff;">{{ loop.index }}. {{ career.name }}</h3>
+                    <div style="font-weight: bold; color: #89CFF0;">{{ career.match }}% Match</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-5 mb-5">
+            <a href="/services/psychometric" class="btn-orange"
+                style="background: #007bff; border-radius: 8px; padding: 12px 30px; color: white;">Submit Another
+                Response</a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

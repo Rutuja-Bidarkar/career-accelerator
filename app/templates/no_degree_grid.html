@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}No-Degree Career Options — Career Accelerator{% endblock %}
+{% block meta_description %}Explore no-degree career paths including freelancing, entrepreneurship, side hustles, and
+more.{% endblock %}
+
+{% block content %}
+<section class="no-degree-hero">
+    <div class="container">
+        <h1>No-Degree Career Options</h1>
+        <p>You don't need a degree to build a successful career. Explore these paths.</p>
+    </div>
+</section>
+
+<section class="no-degree-grid-section">
+    <div class="container">
+        {% for category, paths in grouped_paths.items() %}
+        <div class="category-section" style="margin-bottom: 4rem;">
+            <h2 class="category-title"
+                style="margin-bottom: 2rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block; color: darkgreen;">
+                {{ category }}</h2>
+            <div class="no-degree-grid">
+                {% for path in paths %}
+                <a href="/services/no-degree/{{ path.slug }}" class="no-degree-card">
+                    <div class="no-degree-card-icon">{{ path.icon }}</div>
+                    <h3 class="no-degree-card-title">{{ path.name }}</h3>
+                    <p class="no-degree-card-desc">{{ path.description }}</p>
+                    <span class="no-degree-card-cta">Explore →</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

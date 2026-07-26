@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block body_class %}dark-theme tool-page{% endblock %}
+
+{% block title %}Resume Analyzer — Career Accelerator{% endblock %}
+{% block meta_description %}Upload your resume for an instant AI-powered review. Get feedback on strengths, weaknesses, and skill gaps.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/tool-theme.css">
+{% endblock %}
+
+{% block content %}
+<section class="gradio-container">
+    <div class="gradio-header">
+        <h1>AI Resume Analyzer</h1>
+        <p>Analyze your resume and match it with job descriptions using Google Gemini AI.</p>
+    </div>
+
+    <form id="resume-form" class="gradio-form">
+        <div class="gradio-inputs-grid single-col">
+            <!-- Left: Upload Zone -->
+            <div class="gradio-input-col">
+                <label>Upload your resume (PDF)</label>
+                <div class="gradio-dropzone" id="dropzone">
+                    <div class="dropzone-content">
+                        <div class="dropzone-left">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cloud-icon"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 16 4-4 4 4"></path></svg>
+                            <div class="drop-text">
+                                <strong>Drag and drop file here</strong>
+                                <span>Limit 200MB per file • PDF</span>
+                            </div>
+                        </div>
+                        <span class="gradio-browse-btn">Browse files</span>
+                    </div>
+                    <input type="file" id="resume-file" name="file" accept=".pdf,.doc,.docx" hidden required>
+                </div>
+                <!-- File Preview -->
+                <div id="file-name-display" class="gradio-file-preview" style="display:none;">
+                    <div class="preview-inner">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        <span id="preview-filename">Resume.pdf</span> <small id="preview-size">0 KB</small>
+                    </div>
+                    <button type="button" class="preview-close" onclick="document.getElementById('file-name-display').style.display='none'; document.getElementById('resume-file').value='';">✕</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Banners and Actions -->
+        <div class="gradio-actions">
+            <!-- Upload Success (Can be shown via JS) -->
+            <div id="upload-success-banner" class="gradio-success-banner" style="display:none;">
+                Resume uploaded successfully!
+            </div>
+            
+            <!-- Analyze Button -->
+            <button type="submit" class="gradio-analyze-btn" id="analyze-btn">Analyze Resume</button>
+            
+            <!-- Loading -->
+            <div class="tool-loading" id="resume-loading" style="display:none;">
+                <div class="spinner"></div>
+                <p>AI is analyzing your resume...</p>
+            </div>
+
+            <!-- Analysis Complete Success -->
+            <div id="success-banner" class="gradio-success-banner" style="display:none;">
+                Analysis complete!
+            </div>
+        </div>
+    </form>
+
+    <!-- Results Panel -->
+    <div class="gradio-results-panel" id="results-panel" style="display:none;">
+        <h2 class="gradio-results-title">Resume Evaluation <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></h2>
+        
+        <div class="gradio-results-content">
+            <div class="ats-score-display mb-4">
+                <span class="ats-label">ATS Compatibility Score:</span>
+                <span class="ats-score-value"><span id="res-score"></span>/100</span>
+            </div>
+            
+            <div class="gradio-section mt-4">
+                <strong>Strengths:</strong>
+                <ul id="res-strengths" class="gradio-list"></ul>
+            </div>
+            
+            <div class="gradio-section mt-4">
+                <strong>Areas for Improvement (Missing or weak sections):</strong>
+                <ul id="res-weaknesses" class="gradio-list"></ul>
+            </div>
+            
+            <div class="gradio-section mt-4">
+                <strong>Existing Skills:</strong>
+                <div id="res-existing" class="skill-tags"></div>
+            </div>
+            
+            <div class="gradio-section mt-4">
+                <strong>Skills to Add:</strong>
+                <div id="res-missing" class="skill-tags missing"></div>
+            </div>
+            
+            <div class="gradio-section mt-4">
+                <strong>Suggested Courses:</strong>
+                <ul id="res-courses" class="gradio-list"></ul>
+            </div>
+            
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/resume_upload.js"></script>
+{% endblock %}

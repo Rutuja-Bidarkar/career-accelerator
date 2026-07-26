@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Career Accelerator{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Career Accelerator — AI-powered personalized career guidance platform. Discover your path, analyze your resume, and ace your interviews.{% endblock %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/site.css?v=2">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}light-theme{% endblock %}">
+
+    <!-- ====== NAVBAR ====== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-brand">Career Accelerator</a>
+            <ul class="navbar-links">
+                <li><a href="/#home">Home</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/#services">Services</a></li>
+                <li><a href="/#contact">Contact</a></li>
+                {% if current_user %}
+                <li>
+                    <a href="/profile" class="navbar-avatar" title="{{ current_user.username }}">
+                        {% if current_user.avatar_url %}
+                            <img src="{{ current_user.avatar_url }}" alt="Profile" class="avatar-img">
+                        {% else %}
+                            <span class="avatar-initials">{{ current_user.username[0]|upper }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li><a href="/logout" class="navbar-logout">Logout</a></li>
+                {% else %}
+                <li><a href="/login" class="navbar-cta-link">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ====== MAIN CONTENT ====== -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ====== FOOTER ====== -->
+    {% block footer %}
+    <footer class="site-footer">
+        <p>&copy; 2026 My Website. All rights reserved.</p>
+    </footer>
+    {% endblock %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

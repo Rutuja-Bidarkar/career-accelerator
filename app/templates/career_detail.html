@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}{{ career.name }} — Career Accelerator{% endblock %}
+{% block meta_description %}Complete career guide for {{ career.name }}: skills, roadmap, salary, resources, and more.{% endblock %}
+
+{% block content %}
+<!-- Minimalist Hero Section -->
+<section class="minimal-hero">
+    <div class="container hero-content">
+        <a href="/services/careers" class="back-link">← Back to Careers</a>
+        <p class="hero-category">{{ career.category.name }}</p>
+        <h1 class="hero-title">{{ career.name }}</h1>
+        <p class="hero-description">{{ career.overview | truncate(150) }}</p>
+        
+        <div class="hero-badges">
+            {% if career.salary_range %}
+            <span class="hero-badge-text">{{ career.salary_range }}</span>
+            <span class="hero-dot">•</span>
+            {% endif %}
+            <span class="hero-badge-text">High Demand</span>
+            <span class="hero-dot">•</span>
+            <span class="hero-badge-text">Full Time</span>
+        </div>
+    </div>
+</section>
+
+<!-- Main Page Layout -->
+<section class="minimal-page">
+    <div class="container layout-grid">
+        
+        <!-- Left Sticky Navigation -->
+        <aside class="minimal-nav">
+            <h3 class="nav-title">Career Guide</h3>
+            <ul class="nav-list" id="sidebar-nav-list">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+                {% if career.learning_resources %}<li><a href="#resources">Resources</a></li>{% endif %}
+                {% if career.salary_range or career.future_scope %}<li><a href="#salary-future">Salary & Future</a></li>{% endif %}
+                {% if career.job_roles %}<li><a href="#roles">Job Roles</a></li>{% endif %}
+                {% if career.success_story %}<li><a href="#story">Success Story</a></li>{% endif %}
+                {% if career.scholarships %}<li><a href="#scholarships">Scholarships</a></li>{% endif %}
+            </ul>
+        </aside>
+
+        <!-- Right Content Area -->
+        <main class="minimal-content">
+            
+            <!-- Overview -->
+            <div class="content-section" id="overview">
+                <h2>💡 Overview</h2>
+                <p>{{ career.overview }}</p>
+            </div>
+
+            <!-- Skills -->
+            <div class="content-section" id="skills">
+                <h2>🛠 Skills</h2>
+                <div class="minimal-chips">
+                    {% for skill in career.skills_required.split(',') %}
+                        {% if skill.strip() %}
+                            <span class="chip">{{ skill.strip() }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Career Roadmap -->
+            <div class="content-section" id="roadmap">
+                <h2>📖 Career Roadmap</h2>
+                <div class="minimal-timeline" id="roadmap-steps" data-career-id="{{ career.id }}">
+                    {% for step in steps %}
+                    <div class="timeline-step {% if step.id in completed_steps %}completed{% endif %}">
+                        <div class="timeline-number">{{ loop.index }}</div>
+                        <div class="timeline-text">
+                            <label class="roadmap-checkbox-label">
+                                <input type="checkbox"
+                                       class="roadmap-checkbox hidden-checkbox"
+                                       data-step-id="{{ step.id }}"
+                                       {% if step.id in completed_steps %}checked{% endif %}
+                                       {% if not current_user %}disabled{% endif %} style="display:none;">
+                                <span>{{ step.title }}</span>
+                            </label>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if not current_user %}
+                <p class="login-prompt">⚠️ <a href="/login?next=/services/careers/{{ career.slug }}">Log in</a> to track your progress.</p>
+                {% endif %}
+            </div>
+
+            <!-- Learning Resources -->
+            {% if career.learning_resources %}
+            <div class="content-section" id="resources">
+                <h2>📚 Resources</h2>
+                <div class="compact-resource-list">
+                    {% for res in career.learning_resources %}
+                    <div class="resource-row">
+                        <span class="resource-title">{{ res.title }}</span>
+                        <span class="resource-badge">Free</span>
+                        <a href="{{ res.url }}" target="_blank" rel="noopener" class="resource-link">Visit →</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Salary & Future -->
+            {% if career.salary_range or career.future_scope %}
+            <div class="content-section split-section" id="salary-future">
+                {% if career.salary_range %}
+                <div class="salary-block">
+                    <h2>💰 Salary</h2>
+                    <div class="salary-box">
+                        <p class="salary-val">{{ career.salary_range }}</p>
+                        <p class="salary-label">Expected Range</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if career.future_scope %}
+                <div class="future-block">
+                    <h2>🔮 Future Scope</h2>
+                    <div class="future-box">
+                        <p class="future-stars">★★★★★</p>
+                        <ul class="future-list">
+                            <li>High Demand</li>
+                            <li>Excellent Growth</li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Job Roles -->
+            {% if career.job_roles %}
+            <div class="content-section" id="roles">
+                <h2>📊 Job Roles</h2>
+                <p>{{ career.job_roles }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Success Story (Blockquote) -->
+            {% if career.success_story %}
+            <div class="content-section" id="story">
+                <h2>🏆 Success Story</h2>
+                <blockquote class="minimal-quote">
+                    <p>"{{ career.success_story }}"</p>
+                </blockquote>
+            </div>
+            {% endif %}
+
+            <!-- Scholarships (Table) -->
+            {% if career.scholarships %}
+            <div class="content-section" id="scholarships">
+                <h2>🎓 Scholarships</h2>
+                <div class="table-responsive">
+                    <table class="minimal-table">
+                        <thead>
+                            <tr>
+                                <th>Scholarship</th>
+                                <th>Eligibility</th>
+                                <th>Apply</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in career.scholarships %}
+                            <tr>
+                                <td>{{ s.name }}</td>
+                                <td>{{ s.eligibility or 'Eligible Students' }}</td>
+                                <td><a href="{{ s.url }}" target="_blank" rel="noopener" class="table-link">→</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+            
+        </main>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/roadmap_progress.js"></script>
+<script>
+function openAskAI(stepId, stepTitle) {
+    const box = document.getElementById('ask-ai-' + stepId);
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+async function submitAskAI(stepId, stepTitle) {
+    const input = document.getElementById('ask-ai-input-' + stepId);
+    const responseDiv = document.getElementById('ask-ai-response-' + stepId);
+    const question = input.value.trim();
+    if (!question) return;
+
+    responseDiv.innerHTML = '<span class="loading-dots">Thinking...</span>';
+
+    try {
+        const res = await fetch('/api/ask-ai-step', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({step_title: stepTitle, question: question})
+        });
+        const data = await res.json();
+        responseDiv.innerHTML = '<div class="ai-answer">' + data.answer + '</div>';
+    } catch(e) {
+        responseDiv.innerHTML = '<span class="error-text">Failed to get response.</span>';
+    }
+}
+
+document.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('.content-section');
+    const links = document.querySelectorAll('.nav-list li a');
+    let scrollPos = window.scrollY || document.documentElement.scrollTop;
+
+    sections.forEach(sec => {
+        if (scrollPos >= sec.offsetTop - 150) {
+            links.forEach(l => l.classList.remove('active'));
+            const match = document.querySelector(`.nav-list li a[href="#${sec.id}"]`);
+            if(match) match.classList.add('active');
+        }
+    });
+});
+</script>
+{% endblock %}

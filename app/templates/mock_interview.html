@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block body_class %}dark-theme tool-page{% endblock %}
+
+{% block title %}Mock Interview — Career Accelerator{% endblock %}
+{% block meta_description %}Practice for your dream job with our stateful AI mock interview bot.{% endblock %}
+
+{% block content %}
+<section class="tool-section">
+    <div class="container interview-container">
+        
+        <!-- Setup Header -->
+        <div class="interview-setup" id="setup-panel">
+            <div class="tool-header mb-2">
+                <div class="tool-icon">🎤</div>
+                <h1>Mock Interview</h1>
+                <p>Enter the job role you are applying for to start your practice session.</p>
+            </div>
+            <div class="job-role-input-group">
+                <input type="text" id="job-role" placeholder="e.g., Software Engineer, Data Scientist" class="form-input" required>
+                <button class="btn-orange" id="start-btn">Start Session</button>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="chat-interface" id="chat-panel" style="display:none;">
+            <div class="chat-header">
+                <h2>Interview in Progress <span class="blink-dot"></span></h2>
+                <span class="role-badge" id="role-badge">Role</span>
+            </div>
+            
+            <div class="chat-thread" id="chat-thread">
+                <!-- Messages go here -->
+            </div>
+            
+            <div class="chat-input-area">
+                <textarea id="chat-input" placeholder="Type your answer here..." rows="3"></textarea>
+                <div class="chat-actions">
+                    <button class="btn-orange-outline" id="end-btn">End Interview</button>
+                    <button class="btn-orange" id="submit-btn">Submit Answer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Interface -->
+        <div class="interview-summary" id="summary-panel" style="display:none;">
+            <div class="score-header text-center">
+                <h2>Performance Summary</h2>
+                <div class="score-circle mx-auto">
+                    <span id="final-score">0</span>
+                    <small>/100</small>
+                </div>
+            </div>
+            <div class="summary-text mt-4" id="summary-text"></div>
+            <div class="text-center mt-5">
+                <a href="/profile" class="btn-outline">Back to Dashboard</a>
+                <button class="btn-orange ml-3" onclick="location.reload()">Start New Session</button>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/interview_chat.js"></script>
+{% endblock %}

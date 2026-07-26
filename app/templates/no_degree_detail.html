@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}{{ path.name }} — Career Accelerator{% endblock %}
+{% block meta_description %}Complete guide for {{ path.name }}: roadmap, resources, and tips to get started without a degree.{% endblock %}
+
+{% block content %}
+<section class="detail-page-section">
+    <div class="container">
+        <a href="/services/no-degree" class="back-link">← Back to No-Degree Options</a>
+
+        <div class="detail-card">
+            <!-- Progress Bar -->
+            <div class="progress-header">
+                <span class="progress-label">Your Progress</span>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: {{ progress_pct }}%"></div>
+                </div>
+                <span class="progress-pct-text" id="progress-pct-text">{{ progress_pct }}% Complete</span>
+            </div>
+
+            <div class="detail-title-row">
+                <span class="detail-icon">{{ path.icon }}</span>
+                <h1 class="detail-title">{{ path.name }}</h1>
+            </div>
+
+            <!-- Overview -->
+            <div class="detail-section">
+                <h2>💡 Overview</h2>
+                <p>{{ path.description }}</p>
+            </div>
+
+            {% if path.skills_required %}
+            <!-- Skills Required -->
+            <div class="detail-section">
+                <h2>🛠️ Skills Required</h2>
+                <p>{{ path.skills_required }}</p>
+            </div>
+            {% endif %}
+
+            {% if path.income_salary %}
+            <!-- Income/Salary -->
+            <div class="detail-section">
+                <h2>💰 Income/Salary</h2>
+                <p>{{ path.income_salary }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Roadmap -->
+            <div class="detail-section">
+                <h2>📖 Roadmap</h2>
+                <div class="roadmap-steps-row" id="roadmap-steps" data-career-id="{{ path.id }}" data-roadmap-type="no_degree" data-total-steps="{{ steps|length }}">
+                    {% for step in steps %}
+                    <div class="roadmap-step-card {% if step.id in completed_steps %}completed{% endif %}" data-step-id="{{ step.id }}">
+                        <label class="roadmap-checkbox-label">
+                            <input type="checkbox"
+                                   class="roadmap-checkbox"
+                                   data-step-id="{{ step.id }}"
+                                   {% if step.id in completed_steps %}checked{% endif %}
+                                   {% if not current_user %}disabled{% endif %}>
+                            <span class="roadmap-step-text">{{ loop.index }}) {{ step.title }}</span>
+                        </label>
+                        {% if step.detail %}
+                        <p class="roadmap-step-detail">{{ step.detail }}</p>
+                        {% endif %}
+
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if not current_user %}
+                <p class="login-prompt">⚠️ <a href="/login?next=/services/no-degree/{{ path.slug }}">Log in</a> to track your progress.</p>
+                {% endif %}
+            </div>
+
+            {% if path.where_to_find_work %}
+            <!-- Where to Find Work -->
+            <div class="detail-section">
+                <h2>🌐 Where to Find Work</h2>
+                <p>{{ path.where_to_find_work }}</p>
+            </div>
+            {% endif %}
+
+            {% if path.learning_resources %}
+            <!-- Learning Resources -->
+            <div class="detail-section">
+                <h2>📚 Learning Resources</h2>
+                <ul>
+                    {% for resource in path.learning_resources %}
+                    <li><a href="{{ resource.url }}" target="_blank" rel="noopener noreferrer">{{ resource.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if path.success_story %}
+            <!-- Success Story -->
+            <div class="detail-section">
+                <h2>🌟 Success Story</h2>
+                <p><em>"{{ path.success_story }}"</em></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/roadmap_progress.js"></script>
+<script>
+function openAskAI(stepId, stepTitle) {
+    const box = document.getElementById('ask-ai-' + stepId);
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+async function submitAskAI(stepId, stepTitle) {
+    const input = document.getElementById('ask-ai-input-' + stepId);
+    const responseDiv = document.getElementById('ask-ai-response-' + stepId);
+    const question = input.value.trim();
+    if (!question) return;
+    responseDiv.innerHTML = '<span class="loading-dots">Thinking...</span>';
+    try {
+        const res = await fetch('/api/ask-ai-step', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({step_title: stepTitle, question: question})
+        });
+        const data = await res.json();
+        responseDiv.innerHTML = '<div class="ai-answer">' + data.answer + '</div>';
+    } catch(e) {
+        responseDiv.innerHTML = '<span class="error-text">Failed to get response.</span>';
+    }
+}
+</script>
+{% endblock %}

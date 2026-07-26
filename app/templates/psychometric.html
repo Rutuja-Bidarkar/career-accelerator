@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block body_class %}psycho-wizard-bg{% endblock %}
+
+{% block title %}Psychometric Assessment — Career Accelerator{% endblock %}
+{% block meta_description %}Take our AI-powered psychometric assessment to discover career paths that match your
+interests and personality.{% endblock %}
+
+{% block content %}
+<section class="tool-section" style="padding-top: 40px;">
+    <div class="container tool-container">
+
+        <div class="tool-header" style="color: #1a1a1a; text-align: center;">
+            <div class="tool-icon">🧠</div>
+            <h1>PSYCHOMETRIC ASSESSMENT</h1>
+            <p style="color: #4a5568;">Discover the career path that fits you.<br>Answer a few questions about your
+                interests and strengths.</p>
+        </div>
+
+        <div class="wizard-card" id="psycho-card">
+
+            <!-- Breadcrumbs -->
+            <div class="wizard-breadcrumb" id="wizard-breadcrumb">
+                <div class="crumb-step active" id="crumb-interests">
+                    <span class="crumb-dot"></span>
+                    Interests
+                </div>
+                <div class="crumb-step" id="crumb-personality">
+                    <span class="crumb-dot"></span>
+                    Personality
+                </div>
+                <div class="crumb-step" id="crumb-aptitude">
+                    <span class="crumb-dot"></span>
+                    Aptitude
+                </div>
+                <div class="crumb-step" id="crumb-skills">
+                    <span class="crumb-dot"></span>
+                    Skills
+                </div>
+                <div class="crumb-step" id="crumb-values">
+                    <span class="crumb-dot"></span>
+                    Values
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 0.9rem; font-weight: 600; color: #a0aec0; margin-bottom: 5px;" id="q-counter">
+                    Question 1 of {{ questions|length }}</div>
+                <div
+                    style="width: 100%; max-width: 400px; margin: 0 auto; height: 8px; background: #edf2f7; border-radius: 4px; overflow: hidden;">
+                    <div id="q-progress" style="width: 0%; height: 100%; background: #007bff; transition: 0.3s;"></div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="psycho-form" class="psycho-form">
+                {% for q in questions %}
+                <div class="wizard-q-container" id="q-container-{{ loop.index0 }}" style="display: none;"
+                    data-tag="{{ q.trait_tag }}">
+                    <div class="wizard-q-label">
+                        {% if q.trait_tag == 'interests' %}🎨 Interests{% endif %}
+                        {% if q.trait_tag == 'personality' %}🎭 Personality{% endif %}
+                        {% if q.trait_tag == 'aptitude' %}📐 Aptitude{% endif %}
+                        {% if q.trait_tag == 'skills' %}🛠️ Skills{% endif %}
+                        {% if q.trait_tag == 'values' %}💎 Values{% endif %}
+                    </div>
+                    <div class="wizard-q-text">{{ q.text }}</div>
+
+                    <div class="likert-scale">
+                        <label class="likert-option">
+                            <input type="radio" name="q_{{ q.id }}" value="1" required>
+                            <span class="likert-circle"></span>
+                            <span class="likert-label">Strongly Disagree</span>
+                        </label>
+                        <label class="likert-option">
+                            <input type="radio" name="q_{{ q.id }}" value="2" required>
+                            <span class="likert-circle"></span>
+                            <span class="likert-label">Disagree</span>
+                        </label>
+                        <label class="likert-option">
+                            <input type="radio" name="q_{{ q.id }}" value="3" required>
+                            <span class="likert-circle"></span>
+                            <span class="likert-label">Neutral</span>
+                        </label>
+                        <label class="likert-option">
+                            <input type="radio" name="q_{{ q.id }}" value="4" required>
+                            <span class="likert-circle"></span>
+                            <span class="likert-label">Agree</span>
+                        </label>
+                        <label class="likert-option">
+                            <input type="radio" name="q_{{ q.id }}" value="5" required>
+                            <span class="likert-circle"></span>
+                            <span class="likert-label">Strongly Agree</span>
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="wizard-footer">
+                    <button type="button" class="btn-outline" id="btn-prev"
+                        style="color: #4a5568; border-color: #cbd5e0; visibility: hidden;">&larr; Previous</button>
+                    <button type="button" class="btn-orange" id="btn-next"
+                        style="background: #007bff;border-radius: 6px; color: white;">Next Question &rarr;</button>
+                    <button type="submit" class="btn-orange" id="btn-submit"
+                        style="display: none; background: #007bff;border-radius: 6px; color: white">Submit
+                        Assessment</button>
+                </div>
+            </form>
+
+            <div class="tool-loading" id="psycho-loading" style="display:none; color: #2d3748; padding: 40px 0;">
+                <div class="spinner" style="border-top-color: #007bff;"></div>
+                <p>AI is analyzing your profile...</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('psycho-form');
+        const loading = document.getElementById('psycho-loading');
+        const total = {{ questions| length
+    }};
+    const prevBtn = document.getElementById('btn-prev');
+    const nextBtn = document.getElementById('btn-next');
+    const submitBtn = document.getElementById('btn-submit');
+    const qCounter = document.getElementById('q-counter');
+    const qProgress = document.getElementById('q-progress');
+
+    let currentIndex = 0;
+
+    // Array of containers
+    const containers = [];
+    for (let i = 0; i < total; i++) {
+        containers.push(document.getElementById('q-container-' + i));
+    }
+
+    function updateUI() {
+        // Show current question
+        containers.forEach((c, idx) => {
+            c.style.display = (idx === currentIndex) ? 'block' : 'none';
+        });
+
+        // Update Buttons
+        prevBtn.style.visibility = (currentIndex === 0) ? 'hidden' : 'visible';
+
+        if (currentIndex === total - 1) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'inline-block';
+        } else {
+            nextBtn.style.display = 'inline-block';
+            submitBtn.style.display = 'none';
+        }
+
+        // Update Progress
+        const pct = Math.round(((currentIndex + 1) / total) * 100);
+        qCounter.textContent = `Question ${currentIndex + 1} of ${total}`;
+        qProgress.style.width = pct + '%';
+
+        // Update Breadcrumbs
+        const currentTag = containers[currentIndex].getAttribute('data-tag');
+        const tags = ['interests', 'personality', 'aptitude', 'skills', 'values'];
+        let foundCurrent = false;
+
+        tags.forEach(tag => {
+            const el = document.getElementById('crumb-' + tag);
+            if (el) {
+                if (tag === currentTag) {
+                    el.className = 'crumb-step active';
+                    foundCurrent = true;
+                } else if (!foundCurrent) {
+                    el.className = 'crumb-step completed';
+                } else {
+                    el.className = 'crumb-step';
+                }
+            }
+        });
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateUI();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        // Optional: Check if radio is selected before advancing
+        const radios = containers[currentIndex].querySelectorAll('input[type="radio"]');
+        let selected = false;
+        radios.forEach(r => { if (r.checked) selected = true; });
+        if (!selected) {
+            alert("Please select an answer.");
+            return;
+        }
+
+        if (currentIndex < total - 1) {
+            currentIndex++;
+            updateUI();
+        }
+    });
+
+    // Auto-advance when user clicks a likert option
+    form.addEventListener('change', (e) => {
+        if (e.target.type === 'radio') {
+            setTimeout(() => {
+                if (currentIndex < total - 1) {
+                    currentIndex++;
+                    updateUI();
+                }
+            }, 300); // short delay for visual feedback
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const answers = {};
+        for (let [key, value] of formData.entries()) {
+            const qid = key.split('_')[1];
+            answers[qid] = parseInt(value);
+        }
+
+        document.getElementById('wizard-breadcrumb').style.display = 'none';
+        form.style.display = 'none';
+        loading.style.display = 'flex';
+        qCounter.parentElement.style.display = 'none';
+
+        try {
+            const res = await fetch('/services/psychometric', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answers })
+            });
+            const data = await res.json();
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
+                alert("Error processing results.");
+                form.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Network error.");
+            form.style.display = 'block';
+            loading.style.display = 'none';
+        }
+    });
+
+    // Initialize
+    updateUI();
+});
+</script>
+{% endblock %}

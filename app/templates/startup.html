@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Startup Roadmap — Career Accelerator{% endblock %}
+{% block meta_description %}Step-by-step startup roadmap: from idea validation to growth. Build your own startup with AI-guided assistance.{% endblock %}
+
+{% block content %}
+<section class="detail-page-section">
+    <div class="container">
+        <div class="detail-card">
+            <h1 class="detail-title">🚀 Build Your Own StartUp</h1>
+            <p class="detail-subtitle">Follow this step-by-step roadmap to launch your startup from idea to growth.</p>
+            {% if current_user %}
+            <div class="startup-progress-tracker" style="margin-bottom: 2rem; text-align: center; font-size: 1.2rem;">
+                <strong>Progress: <span id="progress-count">{{ completed_steps|length }}</span> / {{ steps|length }} Steps Completed</strong>
+            </div>
+            {% endif %}
+
+            <div class="startup-timeline" id="startup-timeline">
+                {% for step in steps %}
+                <div class="startup-step {% if step.id in completed_steps %}completed{% endif %}" id="startup-step-{{ step.id }}">
+                    <div class="startup-step-indicator">
+                        <div class="startup-step-circle {% if step.id in completed_steps %}done{% endif %}">
+                            {% if step.id in completed_steps %}✓{% else %}{{ loop.index }}{% endif %}
+                        </div>
+                        {% if not loop.last %}<div class="startup-step-line"></div>{% endif %}
+                    </div>
+                    <div class="startup-step-content">
+                        <div class="startup-step-header" onclick="toggleStep({{ step.id }})">
+                            <h3>{{ step.title }}</h3>
+                            <button class="expand-btn" id="expand-btn-{{ step.id }}">▼</button>
+                        </div>
+                        <div class="startup-step-body" id="step-body-{{ step.id }}" style="display:none;">
+                            <p class="step-detail-text" style="font-size: 1.1rem; margin-bottom: 1.5rem;">{{ step.detail }}</p>
+                            
+                            {% if step.what_to_do %}
+                            <div class="step-subsection" style="margin-bottom: 1.5rem;">
+                                <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">📝 What to do</h4>
+                                <ul style="list-style-type: disc; margin-left: 1.5rem;">
+                                    {% for item in step.what_to_do %}
+                                    <li style="margin-bottom: 0.5rem;">{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                            
+                            {% if step.why_it_matters %}
+                            <div class="step-subsection step-callout" style="background-color: #f0f7ff; padding: 1rem; border-left: 4px solid var(--primary-color); margin-bottom: 1.5rem; border-radius: 4px;">
+                                <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">💡 Why it matters</h4>
+                                <p style="margin: 0;">{{ step.why_it_matters }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if step.tool_template %}
+                            <div class="step-subsection" style="margin-bottom: 1.5rem;">
+                                <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">🛠️ Tool/Template</h4>
+                                <p>{{ step.tool_template }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            {% if current_user %}
+                            <div class="step-done-section" style="background-color: #f8fff0; padding: 1rem; border: 1px solid #c3e6cb; border-radius: 4px; margin-top: 1.5rem;">
+                                <label class="startup-complete-label" style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" class="startup-checkbox" style="margin-top: 0.3rem;"
+                                           data-step-id="{{ step.id }}"
+                                           {% if step.id in completed_steps %}checked{% endif %}
+                                           onchange="toggleStartupStep(this, {{ step.id }})">
+                                    <span><strong>Done when:</strong> {{ step.done_when }}</span>
+                                </label>
+                            </div>
+                            {% else %}
+                            <p class="login-prompt" style="margin-top: 1.5rem;">⚠️ <a href="/login?next=/services/startup">Log in</a> to track your progress.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="startup-ctas" style="margin-top: 3rem; text-align: center; padding: 2rem; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <button class="btn btn-secondary" style="margin-right: 1rem;" onclick="window.print()">Download your roadmap as PDF</button>
+            <a href="#" class="btn btn-primary" onclick="alert('Mentor feature coming soon!')">Talk to a mentor</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleStep(stepId) {
+    const body = document.getElementById('step-body-' + stepId);
+    const btn = document.getElementById('expand-btn-' + stepId);
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen ? '▼' : '▲';
+}
+
+async function toggleStartupStep(checkbox, stepId) {
+    const completed = checkbox.checked;
+    try {
+        await fetch('/api/startup/toggle', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({step_id: stepId, completed: completed})
+        });
+        const stepEl = document.getElementById('startup-step-' + stepId);
+        const circle = stepEl.querySelector('.startup-step-circle');
+        if (completed) {
+            stepEl.classList.add('completed');
+            circle.classList.add('done');
+            circle.textContent = '✓';
+            const countEl = document.getElementById('progress-count');
+            if (countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
+        } else {
+            stepEl.classList.remove('completed');
+            circle.classList.remove('done');
+            // Restore number
+            const stepIdStr = stepEl.id.replace('startup-step-', '');
+            // Find its index among startup-step elements
+            const allSteps = document.querySelectorAll('.startup-step');
+            let stepNumber = 1;
+            for (let i = 0; i < allSteps.length; i++) {
+                if (allSteps[i].id === stepEl.id) {
+                    stepNumber = i + 1;
+                    break;
+                }
+            }
+            circle.textContent = stepNumber;
+            const countEl = document.getElementById('progress-count');
+            if (countEl) countEl.innerText = parseInt(countEl.innerText) - 1;
+        }
+    } catch(e) {
+        console.error(e);
+    }
+}
+</script>
+{% endblock %}

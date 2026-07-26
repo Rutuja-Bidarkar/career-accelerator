@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Login — Career Accelerator{% endblock %}
+{% block meta_description %}Sign in to your Career Accelerator account to access personalized AI career guidance.{%
+endblock %}
+
+{% block content %}
+<div class="auth-split">
+    <!-- LEFT: Photo panel -->
+    <div class="auth-photo-panel">
+        <img src="/static/images/auth-bg.jpeg" alt="Career notebook on a desk" class="auth-photo">
+        <div class="auth-photo-overlay">
+            <h2>Start Your Career Journey</h2>
+            <p>Access personalized guidance, resume analysis, and AI-powered mock interviews.</p>
+        </div>
+    </div>
+
+    <!-- RIGHT: Form panel -->
+    <div class="auth-form-panel">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <div class="auth-logo">🚀</div>
+                <h1>Welcome Back</h1>
+                <p>Sign in to your account</p>
+            </div>
+
+            {% if error %}
+            <div class="auth-error">
+                <span>⚠️</span> {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/login" class="auth-form">
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required
+                        autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required
+                        autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn-auth-primary">Sign In</button>
+            </form>
+
+            <div class="auth-toggle">
+                Don't have an account? <a href="/register">Create one here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

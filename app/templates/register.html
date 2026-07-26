@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Register — Career Accelerator{% endblock %}
+{% block meta_description %}Create your free Career Accelerator account and start your personalized AI career guidance journey.{% endblock %}
+
+{% block content %}
+<div class="auth-split">
+    <!-- LEFT: Photo panel -->
+    <div class="auth-photo-panel">
+        <img src="/static/images/auth-bg.jpeg" alt="Career notebook on a desk" class="auth-photo">
+        <div class="auth-photo-overlay">
+            <h2>Unlock Your Potential</h2>
+            <p>Join thousands of students and professionals finding their perfect career path.</p>
+        </div>
+    </div>
+
+    <!-- RIGHT: Form panel -->
+    <div class="auth-form-panel">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <div class="auth-logo">✨</div>
+                <h1>Create Account</h1>
+                <p>Start your free career journey today</p>
+            </div>
+
+            {% if error %}
+            <div class="auth-error">
+                <span>⚠️</span> {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/register" class="auth-form">
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" placeholder="Your full name" autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required autocomplete="new-password">
+                </div>
+
+                <button type="submit" class="btn-auth-primary">Create Account</button>
+            </form>
+
+            <div class="auth-toggle">
+                Already have an account? <a href="/login">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

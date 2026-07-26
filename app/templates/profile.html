@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Career Accelerator{% endblock %}
+{% block meta_description %}Your personalized career dashboard. Track your roadmap progress, view resume reports, and review past mock interviews.{% endblock %}
+
+{% block content %}
+<section class="profile-header-section">
+    <div class="container profile-header-container">
+        <div class="profile-avatar-large">
+            {% if current_user.avatar_url %}
+                <img src="{{ current_user.avatar_url }}" alt="Profile">
+            {% else %}
+                <span>{{ current_user.username[0]|upper }}</span>
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h1>{{ current_user.full_name or current_user.username }}</h1>
+            <p>{{ current_user.email }}</p>
+        </div>
+        <button class="btn-outline">Edit Profile</button>
+    </div>
+</section>
+
+<section class="profile-dashboard-section">
+    <div class="container dashboard-grid">
+        
+        <!-- Roadmap Progress -->
+        <div class="dashboard-card">
+            <h2>📈 Roadmap Progress</h2>
+            {% if active_roadmaps %}
+                <div class="roadmap-list">
+                    {% for r in active_roadmaps %}
+                    <div class="roadmap-item">
+                        <div class="roadmap-item-header">
+                            <a href="{{ r.slug }}" class="roadmap-item-title">{{ r.title }}</a>
+                            <span class="roadmap-item-pct">{{ r.pct }}%</span>
+                        </div>
+                        <div class="progress-bar-wrap small">
+                            <div class="progress-bar-fill" style="width: {{ r.pct }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-state">No active roadmaps yet. <a href="/services/careers">Explore careers</a> to get started!</p>
+            {% endif %}
+        </div>
+
+        <!-- Psychometric Result -->
+        <div class="dashboard-card">
+            <h2>🧠 Psychometric Profile</h2>
+            {% if psycho %}
+                <div class="psycho-summary">
+                    <p class="psycho-date">Taken on: {{ psycho.taken_at.strftime('%b %d, %Y') }}</p>
+                    {% if psycho.trait_scores %}
+                    <div class="trait-bars">
+                        {% for trait, score in psycho.trait_scores.items() %}
+                        <div class="trait-bar-row">
+                            <span class="trait-name">{{ trait|title }}</span>
+                            <div class="trait-bar-wrap">
+                                <div class="trait-bar-fill" style="width: {{ (score/4)*100 }}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <a href="/services/psychometric/results/{{ psycho.id }}" class="btn-blue-sm mt-3">View Full Report</a>
+                </div>
+            {% else %}
+                <p class="empty-state">Discover your ideal paths. <a href="/services/psychometric">Take the assessment</a>.</p>
+            {% endif %}
+        </div>
+
+        <!-- Resume Reports -->
+        <div class="dashboard-card">
+            <h2>📄 Resume Analyses</h2>
+            {% if resumes %}
+                <ul class="history-list">
+                    {% for r in resumes %}
+                    <li>
+                        <span class="history-date">{{ r.uploaded_at.strftime('%b %d, %Y') }}</span>
+                        <div class="history-details">
+                            <strong>Score: {{ r.overall_score }}/100</strong>
+                            <p class="history-filename">{{ r.filename }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-state">No resumes analyzed. <a href="/services/resume">Upload one now</a>.</p>
+            {% endif %}
+        </div>
+
+        <!-- Interview History -->
+        <div class="dashboard-card">
+            <h2>🎤 Mock Interviews</h2>
+            {% if interviews %}
+                <ul class="history-list">
+                    {% for i in interviews %}
+                    <li>
+                        <span class="history-date">{{ i.started_at.strftime('%b %d, %Y') }}</span>
+                        <div class="history-details">
+                            <strong>{{ i.job_role }}</strong>
+                            {% if i.score %}<p>Score: {{ i.score }}/100</p>{% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-state">No practice interviews yet. <a href="/services/interview">Start an interview</a>.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}

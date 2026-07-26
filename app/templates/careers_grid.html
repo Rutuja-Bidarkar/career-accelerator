@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Career Opportunities — Career Accelerator{% endblock %}
+{% block meta_description %}Browse career paths by category. Find your perfect career in Engineering, Design, Arts, Medicine and more.{% endblock %}
+
+{% block content %}
+<section class="page-hero light-hero">
+    <div class="page-hero-inner">
+        <h1>Explore Career Opportunities</h1>
+        <p>Discover 60+ careers across 9 industries.</p>
+        <div class="careers-search-wrap">
+            <input type="text" id="career-search" placeholder="🔍 Search careers..." class="careers-search-input" oninput="filterCareers(this.value)">
+            <div class="popular-searches">
+                <span>Popular:</span>
+                <button onclick="document.getElementById('career-search').value='AI Engineer'; filterCareers('AI Engineer')">AI Engineer</button>
+                <button onclick="document.getElementById('career-search').value='Doctor'; filterCareers('Doctor')">Doctor</button>
+                <button onclick="document.getElementById('career-search').value='UI Designer'; filterCareers('UI Designer')">UI Designer</button>
+                <button onclick="document.getElementById('career-search').value='Lawyer'; filterCareers('Lawyer')">Lawyer</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="careers-grid-section">
+    <div class="container">
+        {% set category_meta = {
+            'Engineering & Technology': {
+                'desc': 'Build software, AI systems, robots and innovative products.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><path d="M12 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2Z"></path><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m4.93 19.07 1.41-1.41"></path><path d="m17.66 6.34 1.41-1.41"></path></svg>'
+            },
+            'Creative & Design': {
+                'desc': 'Design beautiful interfaces, products and experiences.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>'
+            },
+            'Medical': {
+                'desc': 'Careers focused on healthcare, medicine and life sciences.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v2c0 1.1.9 2 2 2h5v5c0 1.1.9 2 2 2h2a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2z"/></svg>'
+            },
+            'Arts & Media': {
+                'desc': 'Create content, tell stories and entertain audiences.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>'
+            },
+            'Business & Finance': {
+                'desc': 'Manage operations, analyze data and drive growth.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>'
+            },
+            'Science & Research': {
+                'desc': 'Discover new knowledge and advance human understanding.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>'
+            },
+            'Law & Policy': {
+                'desc': 'Advocate for justice, write policies and defend rights.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+            }
+        } %}
+        
+        <div class="category-cards-wrapper">
+        {% for category in categories %}
+            {% set meta = category_meta.get(category.name, {
+                'desc': 'Explore amazing career paths in this exciting industry.',
+                'svg': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="category-icon"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>'
+            }) %}
+            <div class="category-soft-card {% if loop.index is even %}bg-alt{% endif %}" data-category="{{ category.name }}">
+                <div class="card-header-flex">
+                    <div class="icon-and-title">
+                        <div class="icon-wrapper">{{ meta.svg | safe }}</div>
+                        <div>
+                            <h2>{{ category.name }}</h2>
+                            <p class="category-desc">{{ meta.desc }}</p>
+                        </div>
+                    </div>
+                    <div class="career-count">{{ category.careers|length }} Careers &rarr;</div>
+                </div>
+
+                <div class="career-buttons-row">
+                    {% for career in category.careers %}
+                    <a href="/services/careers/{{ career.slug }}" class="career-pill-btn" data-name="{{ career.name|lower }}">
+                        {{ career.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                
+                <div class="explore-all-row">
+                    <a href="#" class="explore-all-link">Explore All &rarr;</a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterCareers(query) {
+    query = query.toLowerCase().trim();
+    document.querySelectorAll('.category-soft-card').forEach(block => {
+        let visibleCount = 0;
+        block.querySelectorAll('.career-pill-btn').forEach(btn => {
+            const name = btn.getAttribute('data-name');
+            const match = !query || name.includes(query);
+            btn.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+        block.style.display = visibleCount > 0 ? '' : 'none';
+        
+        // Update the count dynamically
+        const countEl = block.querySelector('.career-count');
+        if(countEl) {
+            countEl.innerHTML = visibleCount + ' Careers &rarr;';
+        }
+    });
+}
+</script>
+{% endblock %}
